@@ -1,1 +1,1 @@
-bucket_name = "ci-example-bucket"
+bucket_name = "sandbox-example-bucket"

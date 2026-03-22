@@ -28,8 +28,8 @@ jobs:
 
     - name: Terraform Init
       run: terraform init
-      working-directory: tf/resource/s3-bucket
+      working-directory: tf/s3-bucket
 
     - name: Terraform Plan
       run: terraform plan -var-file ../../sandbox/us-east-1/s3-bucket/terraform.tfvars
-      working-directory: tf/resource/s3-bucket
+      working-directory: tf/s3-bucket
