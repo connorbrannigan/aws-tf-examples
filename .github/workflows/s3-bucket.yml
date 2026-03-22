@@ -17,7 +17,7 @@ jobs:
       tf_working_dir: tf/s3-bucket
       var_file_path: us-east-1/s3-bucket/terraform.tfvars
       aws_region: us-east-1
-      apply_on_main: false'
+      apply_on_main: false
       environment: sandbox
     secrets:
       aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
