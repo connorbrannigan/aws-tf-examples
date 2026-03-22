@@ -1,0 +1,1 @@
+bucket_name = "ci-example-bucket"
