@@ -3,22 +3,22 @@ name: Reusable Terraform Workflow
 on:
   workflow_call:
     inputs:
+      environment:
+        description: 'Deployment environment (e.g., sandbox, staging, prod)'
+        required: true
+        type: string
+        default: 'sandbox'
       tf_working_dir:
         description: 'Path to the Terraform working directory'
         required: true
         type: string
       var_file_path:
-        description: 'Path to the variable file relative to tf_working_dir'
+        description: 'Path to the variable file relative to the environment directory (e.g., {region}/{resource}/terraform.tfvars)'
         required: true
         type: string
       aws_region:
         description: 'AWS region for credentials'
         required: true
-        type: string
-      environment:
-        description: 'Environment name for deployment approval'
-        required: false
-        default: 'ci'
         type: string
       apply_on_main:
         description: 'Whether to run apply on main branch'
@@ -37,6 +37,7 @@ permissions:
 jobs:
   terraform-plan:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -61,8 +62,8 @@ jobs:
   terraform-apply:
     runs-on: ubuntu-latest
     if: ${{ inputs.apply_on_main && github.ref == 'refs/heads/main' }}
-    environment: ${{ inputs.environment }}
     needs: terraform-plan
+    environment: ${{ inputs.environment }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -81,5 +82,5 @@ jobs:
       working-directory: ${{ inputs.tf_working_dir }}
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve -var-file ${{ inputs.var_file_path }}
+      run: terraform apply -auto-approve -var-file ../../${{inputs.environment}}/${{ inputs.var_file_path }}
       working-directory: ${{ inputs.tf_working_dir }}
