@@ -56,7 +56,7 @@ jobs:
       working-directory: ${{ inputs.tf_working_dir }}
 
     - name: Terraform Plan
-      run: terraform plan -var-file ${{ inputs.var_file_path }}
+      run: terraform plan -var-file ../../${{ inputs.environment }}/${{ inputs.var_file_path }}
       working-directory: ${{ inputs.tf_working_dir }}
 
   terraform-apply:
@@ -82,5 +82,5 @@ jobs:
       working-directory: ${{ inputs.tf_working_dir }}
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve -var-file ../../${{inputs.environment}}/${{ inputs.var_file_path }}
+      run: terraform apply -auto-approve -var-file ../../${{ inputs.environment }}/${{ inputs.var_file_path }}
       working-directory: ${{ inputs.tf_working_dir }}
