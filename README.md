@@ -3,7 +3,7 @@ A collection of Terraform examples for AWS resources.
 
 ## Structure
 
-- `tf/resource/{infra-name}/`: Main Terraform configuration files for each infrastructure component.
+- `tf/{infra-name}/`: Main Terraform configuration files for each infrastructure component.
 - `{env}/{region}/{infra-name}/`: Environment and region-specific variable files.
 
 ## Workflows

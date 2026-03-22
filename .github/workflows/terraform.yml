@@ -1,0 +1,86 @@
+name: Reusable Terraform Workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Deployment environment (e.g., sandbox, staging, prod)'
+        required: true
+        type: string
+        default: 'sandbox'
+      tf_working_dir:
+        description: 'Path to the Terraform working directory'
+        required: true
+        type: string
+      var_file_path:
+        description: 'Path to the variable file relative to the environment directory (e.g., {region}/{resource}/terraform.tfvars)'
+        required: true
+        type: string
+      aws_region:
+        description: 'AWS region for credentials'
+        required: true
+        type: string
+      apply_on_main:
+        description: 'Whether to run apply on main branch'
+        required: false
+        default: false
+        type: boolean
+    secrets:
+      aws_role_arn:
+        description: 'ARN of the AWS role to assume'
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform-plan:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.aws_role_arn }}
+        aws-region: ${{ inputs.aws_region }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: ${{ inputs.tf_working_dir }}
+
+    - name: Terraform Plan
+      run: terraform plan -var-file ../../${{ inputs.environment }}/${{ inputs.var_file_path }}
+      working-directory: ${{ inputs.tf_working_dir }}
+
+  terraform-apply:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.apply_on_main && github.ref == 'refs/heads/main' }}
+    needs: terraform-plan
+    environment: ${{ inputs.environment }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.aws_role_arn }}
+        aws-region: ${{ inputs.aws_region }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: ${{ inputs.tf_working_dir }}
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -var-file ../../${{ inputs.environment }}/${{ inputs.var_file_path }}
+      working-directory: ${{ inputs.tf_working_dir }}

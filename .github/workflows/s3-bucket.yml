@@ -12,24 +12,12 @@ permissions:
 
 jobs:
   terraform:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-        aws-region: us-east-1
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-
-    - name: Terraform Init
-      run: terraform init
-      working-directory: tf/s3-bucket
-
-    - name: Terraform Plan
-      run: terraform plan -var-file ../../sandbox/us-east-1/s3-bucket/terraform.tfvars
-      working-directory: tf/s3-bucket
+    uses: ./.github/workflows/terraform.yml
+    with:
+      tf_working_dir: tf/s3-bucket
+      var_file_path: us-east-1/s3-bucket/terraform.tfvars
+      aws_region: us-east-1
+      apply_on_main: false
+      environment: sandbox
+    secrets:
+      aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
